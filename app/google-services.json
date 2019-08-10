@@ -8,14 +8,14 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:513499640338:android:f79395b9ebf9d989",
+        "mobilesdk_app_id": "1:513499640338:android:b1fddbf56fec308a",
         "android_client_info": {
           "package_name": "jp.uekibati.aiko.sanpo"
         }
       },
       "oauth_client": [
         {
-          "client_id": "513499640338-fp7bhin9gs5pijrbt0utc4iiji2nfhpo.apps.googleusercontent.com",
+          "client_id": "513499640338-55ko1bu397fon1c467k2p7pucs7djljk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "jp.uekibati.aiko.sanpo",
