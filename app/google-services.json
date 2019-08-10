@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "513499640338",
+    "firebase_url": "https://aikosanpo.firebaseio.com",
+    "project_id": "aikosanpo",
+    "storage_bucket": "aikosanpo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513499640338:android:f79395b9ebf9d989",
+        "android_client_info": {
+          "package_name": "jp.uekibati.aiko.sanpo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "513499640338-fp7bhin9gs5pijrbt0utc4iiji2nfhpo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "jp.uekibati.aiko.sanpo",
+            "certificate_hash": "1b51d4b96a2f4c34e48ab4a22ccf48e0530025fa"
+          }
+        },
+        {
+          "client_id": "513499640338-8kkpa7bekn1kq0or4gfokdtoefn1rrc7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDX3CTXv85jv-t-Wn3Iu3yJN97V11ObrPo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "513499640338-8kkpa7bekn1kq0or4gfokdtoefn1rrc7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
