@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private PendingIntent pendingIntent;
     private SensorManager sensorManager;
     private TextView _textResult; // 認識結果を表示するところ
+    private Integer sumOfStep = 0;
 
     // 認識結果は PendingIntent で通知してくれる
     //  PendingIntent に、Service を起動する Intent を仕込んでおいて、
@@ -198,6 +199,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String text = _textResult.getText().toString();
         text = "歩いてます"+ "\n" + text;
         _textResult.setText(text);
+        sumOfStep=sumOfStep+1;
+        TextView sumOfStepTextView = (TextView)findViewById(R.id.sum_of_step);
+        sumOfStepTextView.setText(String.valueOf(sumOfStep));
     }
 
     @Override
