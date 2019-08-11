@@ -44,14 +44,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // スタティック変数の定義
     private static String TAG = "MainActivity";
     private static int RC_SIGN_IN = 1000;
+
     // インスタンス変数の定義
     private SensorManager sensorManager;
+    private GoogleSignInClient googleSignInClient;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseFirestore firestore;
+
     private TextView logTextView; // ログ表示
     private Long sumOfStep = Long.valueOf(0);
-    private FirebaseAuth mAuth;
-    private GoogleSignInClient mGoogleSignInClient;
-    private FirebaseFirestore firestore;
     private String email;
+
+
+
 
     /**
      * Activityが生成されたときに呼ばれるメソッド
@@ -67,19 +72,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI);
 
-        // ログを表示するTextViewを初期化する
-        logTextView = (TextView)findViewById(R.id.text_results);
-
         // Google認証を初期化する
-        mAuth = FirebaseAuth.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
 
         // クラウドデータベースを初期化する
         firestore = FirebaseFirestore.getInstance();
+
+        // ログを表示するTextViewを初期化する
+        logTextView = (TextView)findViewById(R.id.text_results);
     }
 
     /**
@@ -92,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if (account==null){
             // ログインしていなかったらログインを試みる
-            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            Intent signInIntent = googleSignInClient.getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
         }else {
             // ログイン済みだったらそのまま進む
@@ -187,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             snackbar.setAction("Logout", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mGoogleSignInClient.signOut()
+                    googleSignInClient.signOut()
                         .addOnCompleteListener(MainActivity.this, new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
@@ -201,13 +206,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             // Firebaseで認証するためのおまじない
             AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-            mAuth.signInWithCredential(credential)
+            firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithCredential: success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            FirebaseUser user = firebaseAuth.getCurrentUser();
                             // クラウドデータベースの徒歩値の監視を初期化する
                             final DocumentReference docRef = firestore.collection("users").document(email);
                             docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
