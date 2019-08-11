@@ -56,8 +56,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private String email;
 
 
-
-
     /**
      * Activityが生成されたときに呼ばれるメソッド
      * @param savedInstanceState
@@ -96,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Googleアカウントでログイン済みかどうか確認する
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if (account==null){
-            // ログインしていなかったらログインを試みる
+            // ログインしていなかったらログインを試みるインテントを発行する
             Intent signInIntent = googleSignInClient.getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
         }else {
@@ -192,13 +190,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             snackbar.setAction("Logout", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    googleSignInClient.signOut()
-                        .addOnCompleteListener(MainActivity.this, new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                FirebaseAuth.getInstance().signOut();
-                            }
-                        });
+                    signOut();
                 }
             });
             snackbar.show();
@@ -213,41 +205,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithCredential: success");
                             FirebaseUser user = firebaseAuth.getCurrentUser();
-                            // クラウドデータベースの徒歩値の監視を初期化する
-                            final DocumentReference docRef = firestore.collection("users").document(email);
-                            docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                                @Override
-                                public void onEvent(@Nullable DocumentSnapshot snapshot,
-                                                    @Nullable FirebaseFirestoreException e) {
-                                    if (e != null) {
-                                        Log.w(TAG, "Listen failed.", e);
-                                        return;
-                                    }
-
-                                    if (snapshot != null && snapshot.exists()) {
-                                        Log.d(TAG, "Current data: " + snapshot.getData());
-                                        Log.d(TAG, "step: "+snapshot.getData().get("step"));
-                                        try{
-                                            final Long step = (Long) snapshot.getData().get("step");
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    TextView sumOfStepTextView = (TextView)findViewById(R.id.sum_of_step);
-                                                    sumOfStepTextView.setText(step.toString());
-                                                }
-                                            });
-                                        }catch (Exception e1){
-                                            e1.printStackTrace();
-                                        }
-                                    } else {
-                                        Log.d(TAG, "Current data: null");
-                                        Map<String, Object> user = new HashMap<>();
-                                        user.put("step", 0);
-                                        user.put("timestamp", FieldValue.serverTimestamp());
-                                        firestore.collection("users").document(email).set(user);
-                                    }
-                                }
-                            });
+                            initSnapshotListener();
                         } else {
                             Log.w(TAG, "signInWithCredential: failure", task.getException());
                             Snackbar.make(view, "Google認証に失敗しました", Snackbar.LENGTH_SHORT).show();
@@ -255,6 +213,59 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     }
                 });
         }
+    }
+
+    /**
+     * クラウドデータベースの徒歩値の監視を初期化するメソッド
+     */
+    private void initSnapshotListener(){
+        final DocumentReference docRef = firestore.collection("users").document(email);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Log.d(TAG, "Current data: " + snapshot.getData());
+                    Log.d(TAG, "step: "+snapshot.getData().get("step"));
+                    try{
+                        final Long step = (Long) snapshot.getData().get("step");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                TextView sumOfStepTextView = (TextView)findViewById(R.id.sum_of_step);
+                                sumOfStepTextView.setText(step.toString());
+                            }
+                        });
+                    }catch (Exception e1){
+                        e1.printStackTrace();
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                    Map<String, Object> user = new HashMap<>();
+                    user.put("step", 0);
+                    user.put("timestamp", FieldValue.serverTimestamp());
+                    firestore.collection("users").document(email).set(user);
+                }
+            }
+        });
+    }
+
+    /**
+     * ログアウトするメソッド
+     */
+    private void signOut(){
+        googleSignInClient.signOut()
+            .addOnCompleteListener(MainActivity.this, new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    firebaseAuth.signOut();
+                }
+            });
     }
 
 }
