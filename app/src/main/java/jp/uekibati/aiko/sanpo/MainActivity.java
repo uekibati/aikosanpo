@@ -152,12 +152,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Map<String, Object> user = new HashMap<>();
             user.put("step", FieldValue.increment(1));
             user.put("timestamp", FieldValue.serverTimestamp());
-            firestore.collection("users").document(email).set(user);
+            firestore.collection("users").document(email).update(user);
             // 全ユーザーの歩数値を更新する
             Map<String, Object> all = new HashMap<>();
             user.put("step", FieldValue.increment(1));
             user.put("timestamp", FieldValue.serverTimestamp());
-            firestore.collection("all").document("all-steps").set(all);
+            firestore.collection("all").document("all-steps").update(all);
         }
 
     }
