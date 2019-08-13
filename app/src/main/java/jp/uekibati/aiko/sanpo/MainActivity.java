@@ -70,15 +70,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI);
 
-        // Google認証を初期化する
+        // Firebase 認証を初期化する
         firebaseAuth = FirebaseAuth.getInstance();
+        // Google認証を初期化する
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        // クラウドデータベースを初期化する
+        // Firebase Firestore データベースを初期化する
         firestore = FirebaseFirestore.getInstance();
 
         // ログを表示するTextViewを初期化する
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             startActivityForResult(signInIntent, RC_SIGN_IN);
         }else {
             // ログイン済みだったらそのまま進む
-            updateUI(account);
+            initialize(account);
         }
     }
 
@@ -126,11 +127,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             try {
                 // ログイン成功
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                updateUI(account);
+                initialize(account);
             } catch (ApiException e) {
                 // ログイン失敗
                 Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-                updateUI(null);
+                initialize(null);
             }
         }
     }
@@ -175,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      * UIを更新するためのメソッド
      * @param account
      */
-    public void updateUI(GoogleSignInAccount account){
+    public void initialize(GoogleSignInAccount account){
         if (account==null){
             // ログイン失敗
             Log.d(TAG, "login failed...");
